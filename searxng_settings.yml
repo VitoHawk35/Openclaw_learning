@@ -1,0 +1,21 @@
+server:
+  # Allow all connections
+  bind_address: "0.0.0.0"
+  port: 8080
+  # Disable rate limiting for local use
+  limiter: false
+  public_instance: false
+  # Allow GET requests for easier testing
+  method: "GET"
+
+search:
+  # Disable safe search
+  safe_search: 0
+  # Allow JSON format
+  formats:
+    - html
+    - json
+
+# Disable bot detection for local use
+botdetection:
+  enabled: false

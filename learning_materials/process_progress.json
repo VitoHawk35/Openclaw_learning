@@ -1,0 +1,41 @@
+{
+  "task": "process_5_core_docs",
+  "start_time": "2026-03-02T12:45:00+08:00",
+  "last_update": "2026-03-02T12:45:02.468651",
+  "status": "completed",
+  "current_doc": 1,
+  "total_docs": 5,
+  "docs": [
+    {
+      "name": "\u5c1a\u7845\u8c37\u5927\u6570\u636e\u9879\u76ee\u4e4b\u7535\u5546\u6570\u4ed3\uff081\u7528\u6237\u884c\u4e3a\u6570\u636e\u91c7\u96c6\uff09.docx",
+      "status": "completed",
+      "output": "processed_lessons/doc1_\u7528\u6237\u884c\u4e3a\u6570\u636e\u91c7\u96c6.md",
+      "progress": 100
+    },
+    {
+      "name": "\u5c1a\u7845\u8c37\u5927\u6570\u636e\u9879\u76ee\u4e4b\u7535\u5546\u6570\u4ed3\uff082\u7528\u6237\u884c\u4e3a\u6570\u636e\u4ed3\u5e93\uff09.docx",
+      "status": "completed",
+      "progress": 100,
+      "output": "processed_lessons/doc2_\u7528\u6237\u884c\u4e3a\u6570\u636e\u4ed3\u5e93.md"
+    },
+    {
+      "name": "\u5c1a\u7845\u8c37\u5927\u6570\u636e\u9879\u76ee\u4e4b\u7535\u5546\u6570\u4ed3\uff083\u7cfb\u7edf\u4e1a\u52a1\u6570\u636e\u4ed3\u5e93\uff09.docx",
+      "status": "completed",
+      "progress": 100,
+      "output": "processed_lessons/doc3_\u7cfb\u7edf\u4e1a\u52a1\u6570\u636e\u4ed3\u5e93.md"
+    },
+    {
+      "name": "\u5c1a\u7845\u8c37\u5927\u6570\u636e\u9879\u76ee\u4e4b\u7535\u5546\u6570\u4ed3\uff084\u5373\u5e2d\u67e5\u8be2\u6570\u636e\u4ed3\u5e93\uff09.docx",
+      "status": "completed",
+      "progress": 100,
+      "output": "processed_lessons/doc4_\u5373\u5e2d\u67e5\u8be2\u6570\u636e\u4ed3\u5e93.md"
+    },
+    {
+      "name": "\u5c1a\u7845\u8c37\u5927\u6570\u636e\u9879\u76ee\u4e4b\u7535\u5546\u6570\u4ed3\uff085CDH\u7248\u6570\u4ed3\u91c7\u96c6\uff09.docx",
+      "status": "completed",
+      "progress": 100,
+      "output": "processed_lessons/doc5_CDH\u7248\u6570\u4ed3\u91c7\u96c6.md"
+    }
+  ],
+  "end_time": "2026-03-02T12:45:02.468814"
+}

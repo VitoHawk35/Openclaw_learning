@@ -1,0 +1,356 @@
+{
+  "doc_name": "即席查询数据仓库",
+  "total_sections": 23,
+  "sections": [
+    {
+      "title": "",
+      "content": [
+        "尚硅谷大数据项目之电商数仓（即席查询）",
+        "(作者：尚硅谷大数据研发部)",
+        "版本：V4.0"
+      ]
+    },
+    {
+      "title": "1.1.4 Presto、Impala性能比较",
+      "content": [
+        "测试结论：Impala性能稍领先于Presto，但是Presto在数据源支持上非常丰富，包括Hive、图数据库、传统关系型数据库、Redis等。"
+      ]
+    },
+    {
+      "title": "1.2.1 Presto Server安装",
+      "content": [
+        "0）官网地址",
+        "https://prestodb.github.io/",
+        "1）下载地址",
+        "https://repo1.maven.org/maven2/com/facebook/presto/presto-server/0.196/presto-server-0.196.tar.gz",
+        "2）将presto-server-0.196.tar.gz导入hadoop102的/opt/software目录下，并解压到/opt/module目录",
+        "[atguigu@hadoop102 software]$ tar -zxvf presto-server-0.196.tar.gz -C /opt/module/",
+        "3）修改名称为presto",
+        "[atguigu@hadoop102 module]$ mv presto-server-0.196/ presto",
+        "4）进入到/opt/module/presto目录，并创建存储数据文件夹",
+        "[atguigu@hadoop102 presto]$ mkdir data",
+        "5）进入到/opt/module/presto目录，并创建存储配置文件文件夹",
+        "[atguigu@hadoop102 presto]$ mkdir etc",
+        "6）配置在/opt/module/presto/etc目录下添加jvm.config配置文件",
+        "[atguigu@hadoop102 etc]$ vim jvm.config",
+        "添加如下内容",
+        "-server",
+        "-Xmx16G",
+        "-XX:+UseG1GC",
+        "-XX:G1HeapRegionSize=32M",
+        "-XX:+UseGCOverheadLimit",
+        "-XX:+ExplicitGCInvokesConcurrent",
+        "-XX:+HeapDumpOnOutOfMemoryError",
+        "-XX:+ExitOnOutOfMemoryError",
+        "7）Presto可以支持多个数据源，在Presto里面叫catalog，这里我们配置支持Hive的数据源，配置一个Hive的catalog",
+        "[atguigu@hadoop102 etc]$ mkdir catalog",
+        "[atguigu@hadoop102 catalog]$ vim hive.properties",
+        "添加如下内容",
+        "connector.name=hive-hadoop2",
+        "hive.metastore.uri=thrift://hadoop102:9083",
+        "8）将hadoop102上的presto分发到hadoop103、hadoop104",
+        "[atguigu@hadoop102 module]$ xsync presto",
+        "9）分发之后，分别进入hadoop102、hadoop103、hadoop104三台主机的/opt/module/presto/etc的路径。配置node属性，node id每个节点都不一样。",
+        "[atguigu@hadoop102 etc]$vim node.properties",
+        "node.environment=production",
+        "node.id=ffffffff-ffff-ffff-ffff-ffffffffffff",
+        "node.data-dir=/opt/module/presto/data",
+        "[atguigu@hadoop103 etc]$vim node.properties",
+        "node.environment=production",
+        "node.id=ffffffff-ffff-ffff-ffff-fffffffffffe",
+        "node.data-dir=/opt/module/presto/data",
+        "[atguigu@hadoop104 etc]$vim node.properties",
+        "node.environment=production",
+        "node.id=ffffffff-ffff-ffff-ffff-fffffffffffd",
+        "node.data-dir=/opt/module/presto/data",
+        "10）Presto是由一个coordinator节点和多个worker节点组成。在hadoop102上配置成coordinator，在hadoop103、hadoop104上配置为worker。",
+        "（1）hadoop102上配置coordinator节点",
+        "[atguigu@hadoop102 etc]$ vim config.properties",
+        "添加内容如下",
+        "coordinator=true",
+        "node-scheduler.include-coordinator=false",
+        "http-server.http.port=8881",
+        "query.max-memory=50GB",
+        "discovery-server.enabled=true",
+        "discovery.uri=http://hadoop102:8881",
+        "（2）hadoop103、hadoop104上配置worker节点",
+        "[atguigu@hadoop103 etc]$ vim config.properties",
+        "添加内容如下",
+        "coordinator=false",
+        "http-server.http.port=8881",
+        "query.max-memory=50GB",
+        "discovery.uri=http://hadoop102:8881",
+        "[atguigu@hadoop104 etc]$ vim config.properties",
+        "添加内容如下",
+        "coordinator=false",
+        "http-server.http.port=8881",
+        "query.max-memory=50GB",
+        "discovery.uri=http://hadoop102:8881",
+        "11）在hadoop102的/opt/module/hive目录下，启动Hive Metastore，用atguigu角色",
+        "[atguigu@hadoop102 hive]$",
+        "nohup bin/hive --service metastore >/dev/null 2>&1 &",
+        "12）分别在hadoop102、hadoop103、hadoop104上启动Presto Server",
+        "（1）前台启动Presto，控制台显示日志",
+        "[atguigu@hadoop102 presto]$ bin/launcher run",
+        "[atguigu@hadoop103 presto]$ bin/launcher run",
+        "[atguigu@hadoop104 presto]$ bin/launcher run",
+        "（2）后台启动Presto",
+        "[atguigu@hadoop102 presto]$ bin/launcher start",
+        "[atguigu@hadoop103 presto]$ bin/launcher start",
+        "[atguigu@hadoop104 presto]$ bin/launcher start",
+        "13）日志查看路径/opt/module/presto/data/var/log"
+      ]
+    },
+    {
+      "title": "1.2.2 Presto命令行Client安装",
+      "content": [
+        "1）下载Presto的客户端",
+        "2）将presto-cli-0.196-executable.jar上传到hadoop102的/opt/module/presto文件夹下",
+        "3）修改文件名称",
+        "[atguigu@hadoop102 presto]$ mv presto-cli-0.196-executable.jar  prestocli",
+        "4）增加执行权限",
+        "[atguigu@hadoop102 presto]$ chmod +x prestocli",
+        "5）启动prestocli",
+        "[atguigu@hadoop102 presto]$ ./prestocli --server hadoop102:8881 --catalog hive --schema default",
+        "6）Presto命令行操作",
+        "Presto的命令行操作，相当于Hive命令行操作。每个表必须要加上schema。",
+        "例如：",
+        "select * from schema.table limit 100"
+      ]
+    },
+    {
+      "title": "1.2.3 Presto可视化Client安装",
+      "content": [
+        "1）将yanagishima-18.0.zip上传到hadoop102的/opt/module目录",
+        "2）解压缩yanagishima",
+        "[atguigu@hadoop102 module]$ unzip yanagishima-18.0.zip",
+        "cd yanagishima-18.0",
+        "3）进入到/opt/module/yanagishima-18.0/conf文件夹，编写yanagishima.properties配置",
+        "[atguigu@hadoop102 conf]$ vim yanagishima.properties",
+        "添加如下内容",
+        "jetty.port=7080",
+        "presto.datasources=atiguigu-presto",
+        "presto.coordinator.server.atiguigu-presto=http://hadoop102:8881",
+        "catalog.atiguigu-presto=hive",
+        "schema.atiguigu-presto=default",
+        "sql.query.engines=presto",
+        "4）在/opt/module/yanagishima-18.0路径下启动yanagishima",
+        "[atguigu@hadoop102 yanagishima-18.0]$",
+        "nohup bin/yanagishima-start.sh >y.log 2>&1 &",
+        "5）启动web页面",
+        "http://hadoop102:7080",
+        "看到界面，进行查询了。",
+        "6）查看表结构",
+        "这里有个Tree View，可以查看所有表的结构，包括Schema、表、字段等。",
+        "比如执行select * from hive.dw_weather.tmp_news_click limit 10，这个句子里Hive这个词可以删掉，是上面配置的Catalog",
+        "每个表后面都有个复制键，点一下会复制完整的表名，然后再上面框里面输入sql语句，ctrl+enter键执行显示结果"
+      ]
+    },
+    {
+      "title": "1.3.1 合理设置分区",
+      "content": [
+        "与Hive类似，Presto会根据元数据信息读取分区数据，合理的分区能减少Presto数据读取量，提升查询性能。"
+      ]
+    },
+    {
+      "title": "1.3.2 使用列式存储",
+      "content": [
+        "Presto对ORC文件读取做了特定优化，因此在Hive中创建Presto使用的表时，建议采用ORC格式存储。相对于Parquet，Presto对ORC支持更好。"
+      ]
+    },
+    {
+      "title": "1.3.3 使用压缩",
+      "content": [
+        "数据压缩可以减少节点间数据传输对IO带宽压力，对于即席查询需要快速解压，建议采用Snappy压缩。"
+      ]
+    },
+    {
+      "title": "1.4.1 只选择使用的字段",
+      "content": [
+        "由于采用列式存储，选择需要的字段可加快字段的读取、减少数据量。避免采用*读取所有字段。",
+        "[GOOD]: SELECT time, user, host FROM tbl",
+        "[BAD]:  SELECT * FROM tbl"
+      ]
+    },
+    {
+      "title": "1.4.2 过滤条件必须加上分区字段",
+      "content": [
+        "对于有分区的表，where语句中优先使用分区字段进行过滤。acct_day是分区字段，visit_time是具体访问时间。",
+        "[GOOD]: SELECT time, user, host FROM tbl where acct_day=20171101",
+        "[BAD]:  SELECT * FROM tbl where visit_time=20171101"
+      ]
+    },
+    {
+      "title": "1.4.3 Group By语句优化",
+      "content": [
+        "合理安排Group by语句中字段顺序对性能有一定提升。将Group By语句中字段按照每个字段distinct数据多少进行降序排列。",
+        "[GOOD]: SELECT GROUP BY uid, gender",
+        "[BAD]:  SELECT GROUP BY gender, uid"
+      ]
+    },
+    {
+      "title": "1.4.4 Order by时使用Limit",
+      "content": [
+        "Order by需要扫描数据到单个worker节点进行排序，导致单个worker需要大量内存。如果是查询Top N或者Bottom N，使用limit可减少排序计算和内存压力。",
+        "[GOOD]: SELECT * FROM tbl ORDER BY time LIMIT 100",
+        "[BAD]:  SELECT * FROM tbl ORDER BY time"
+      ]
+    },
+    {
+      "title": "1.4.5 使用Join语句时将大表放在左边",
+      "content": [
+        "Presto中join的默认算法是broadcast join，即将join左边的表分割到多个worker，然后将join右边的表数据整个复制一份发送到每个worker进行计算。如果右边的表数据量太大，则可能会报内存溢出错误。",
+        "[GOOD] SELECT ... FROM large_table l join small_table s on l.id = s.id",
+        "[BAD] SELECT ... FROM small_table s join large_table l on l.id = s.id"
+      ]
+    },
+    {
+      "title": "1.5.1 字段名引用",
+      "content": [
+        "避免和关键字冲突：MySQL对字段加反引号`、Presto对字段加双引号分割",
+        "当然，如果字段名称不是关键字，可以不加这个双引号。"
+      ]
+    },
+    {
+      "title": "1.5.2 时间函数",
+      "content": [
+        "对于Timestamp，需要进行比较的时候，需要添加Timestamp关键字，而MySQL中对Timestamp可以直接进行比较。",
+        "/*MySQL的写法*/",
+        "SELECT t FROM a WHERE t > '2017-01-01 00:00:00';",
+        "/*Presto中的写法*/",
+        "SELECT t FROM a WHERE t > timestamp '2017-01-01 00:00:00';"
+      ]
+    },
+    {
+      "title": "1.5.3 不支持INSERT OVERWRITE语法",
+      "content": [
+        "Presto中不支持insert overwrite语法，只能先delete，然后insert into。"
+      ]
+    },
+    {
+      "title": "1.5.4 PARQUET格式",
+      "content": [
+        "Presto目前支持Parquet格式，支持查询，但不支持insert。"
+      ]
+    },
+    {
+      "title": "2.3 Druid数据结构",
+      "content": [
+        "与Druid架构相辅相成的是其基于DataSource与Segment的数据结构，它们共同成就了Druid的高性能优势。"
+      ]
+    },
+    {
+      "title": "2.4.1 安装包下载",
+      "content": [
+        "从https://imply.io/get-started 下载最新版本安装包"
+      ]
+    },
+    {
+      "title": "2.4.2 安装部署",
+      "content": [
+        "imply集成了Druid，提供了Druid从部署到配置到各种可视化工具的完整的解决方案，imply有点类似于我们之前学过的Cloudera Manager",
+        "1）将imply-2.7.10.tar.gz上传到hadoop102的/opt/software目录下，并解压",
+        "[atguigu@hadoop102 software]$ tar -zxvf imply-2.7.10.tar.gz -C /opt/module",
+        "2）修改/opt/module/imply-2.7.10名称为/opt/module/imply",
+        "[atguigu@hadoop102 module]$ mv imply-2.7.10/ imply",
+        "3）修改配置文件",
+        "（1）修改Druid的ZK配置",
+        "[atguigu@hadoop102 _common]$ vi /opt/module/imply/conf/druid/_common/common.runtime.properties",
+        "修改如下内容",
+        "druid.zk.service.host=hadoop102:2181,hadoop103:2181,hadoop104:2181",
+        "（2）修改启动命令参数，使其不校验不启动内置ZK",
+        "[atguigu@hadoop102 supervise]$",
+        "vim /opt/module/imply/conf/supervise/quickstart.conf",
+        "修改如下内容",
+        ":verify bin/verify-java",
+        "#:verify bin/verify-default-ports",
+        "#:verify bin/verify-version-check",
+        ":kill-timeout 10",
+        "#!p10 zk bin/run-zk conf-quickstart",
+        "4）启动",
+        "（1）启动Zookeeper",
+        "[atguigu@hadoop102 imply]$ zk.sh start",
+        "（2）启动imply",
+        "[atguigu@hadoop102 imply]$ bin/supervise  -c conf/supervise/quickstart.conf",
+        "说明：每启动一个服务均会打印出一条日志。可以通过/opt/module/imply/var/sv/查看服务启动时的日志信息",
+        "（3）启动采集Flume和Kafka（主要是为了节省内存开销，同时hadoop102内存调整为8G）",
+        "[atguigu@hadoop102 imply]$ f1.sh start",
+        "[atguigu@hadoop102 imply]$ kf.sh start"
+      ]
+    },
+    {
+      "title": "2.4.3 Web页面使用",
+      "content": [
+        "0）启动日志生成程序（延时1秒发送一条日志）",
+        "[atguigu@hadoop102 server]$ lg.sh 1000 5000",
+        "1）登录hadoop102:9095查看",
+        "2）点击Load data->点击Apache Kafka",
+        "3）添加Kafka Broker和要消费的topic",
+        "4）确认数据样本格式",
+        "5）加载数据，必须要有时间字段",
+        "6）配置要加载哪些列",
+        "7）创建数据库表名",
+        "8）重新观察一下配置",
+        "9）连接Kafka的topic_start",
+        "10）点击SQL",
+        "11）查询指标",
+        "select sum(mid) from \"topic_start\""
+      ]
+    },
+    {
+      "title": "2.4.4 停止服务",
+      "content": [
+        "按Ctrl + c中断监督进程，如果想中断服务后进行干净的启动，请删除/opt/module/imply/var/目录。"
+      ]
+    },
+    {
+      "title": "第3章 Kylin",
+      "content": [
+        "3.1 Hbase安装",
+        "3.1.1 Zookeeper正常部署",
+        "首先保证Zookeeper集群的正常部署，并启动之：",
+        "[atguigu@hadoop102 zookeeper-3.4.10]$ bin/zkServer.sh start",
+        "[atguigu@hadoop103 zookeeper-3.4.10]$ bin/zkServer.sh start",
+        "[atguigu@hadoop104 zookeeper-3.4.10]$ bin/zkServer.sh start",
+        "3.1.2 Hadoop正常部署",
+        "Hadoop集群的正常部署并启动：",
+        "[atguigu@hadoop102 hadoop-2.7.2]$ sbin/start-dfs.sh",
+        "[atguigu@hadoop103 hadoop-2.7.2]$ sbin/start-yarn.sh",
+        "3.1.3 HBase的解压",
+        "解压HBase到指定目录：",
+        "[atguigu@hadoop102 software]$ tar -zxvf hbase-1.3.1-bin.tar.gz -C /opt/module",
+        "3.1.4 HBase的配置文件",
+        "修改HBase对应的配置文件。",
+        "1）hbase-env.sh修改内容：",
+        "export JAVA_HOME=/opt/module/jdk1.8.0_144",
+        "export HBASE_MANAGES_ZK=false",
+        "2）hbase-site.xml修改内容：",
+        "3）regionservers：",
+        "4）软连接hadoop配置文件到hbase：",
+        "[atguigu@hadoop102 module]$ ln -s /opt/module/hadoop-2.7.2/etc/hadoop/core-site.xml",
+        "/opt/module/hbase/conf/core-site.xml",
+        "[atguigu@hadoop102 module]$ ln -s /opt/module/hadoop-2.7.2/etc/hadoop/hdfs-site.xml",
+        "/opt/module/hbase/conf/hdfs-site.xml",
+        "3.1.5 HBase远程发送到其他集群",
+        "[atguigu@hadoop102 module]$ xsync hbase/",
+        "3.1.6 HBase服务的启动",
+        "1）启动方式1",
+        "[atguigu@hadoop102 hbase]$ bin/hbase-daemon.sh start master",
+        "[atguigu@hadoop102 hbase]$ bin/hbase-daemon.sh start regionserver",
+        "提示：如果集群之间的节点时间不同步，会导致regionserver无法启动，抛出ClockOutOfSyncException异常。",
+        "修复提示：",
+        "（1）同步时间服务",
+        "请参看帮助文档：《尚硅谷大数据技术之Hadoop入门》",
+        "（2）属性：hbase.master.maxclockskew设置更大的值",
+        "2）启动方式2",
+        "[atguigu@hadoop102 hbase]$ bin/start-hbase.sh",
+        "对应的停止服务：",
+        "[atguigu@hadoop102 hbase]$ bin/stop-hbase.sh",
+        "3.1.7 查看HBase页面",
+        "启动成功后，可以通过“host:port”的方式来访问HBase管理页面，例如：",
+        "3.2 Kylin安装",
+        "3.3 Kylin使用"
+      ]
+    }
+  ]
+}

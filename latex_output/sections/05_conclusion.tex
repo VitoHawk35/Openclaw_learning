@@ -1,0 +1,17 @@
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+In this work, we presented ASC-Rec, a novel cascaded framework designed to bridge the chasm between structural collaborative filtering and semantic reasoning. Recognizing that neither ID-based models nor LLMs can singly capture the full spectrum of user intent, we introduced an ``Expansion-Compression'' paradigm. By constructing a multi-view expert pool and employing an Attention-based Router, we successfully expanded the retrieval boundary, capturing diverse user needs from structural habits to explicit searches.
+
+Crucially, we identified a critical limitation in applying LLMs for recommendation: the propensity for hallucinations and false negatives, which we termed ``Sycophancy'' and ``Collaborative Blindness.'' To address this, we transformed the role of the LLM from a direct ranker to a Semantic Compressor. Our proposed Conditional RRF strategy---featuring a ``Soft Demotion'' mechanism---successfully suppresses semantic noise without discarding valid structural priors. Extensive experiments on Amazon Beauty, Sports, and Toys datasets demonstrate that ASC-Rec not only achieves state-of-the-art performance but also effectively shifts the ``Golden Ratio'' of relevant items from the tail to the head of the ranking list, maximizing information density in limited exposure slots.
+
+\subsection{Future Work}
+We plan to extend this research in three directions:
+
+\begin{enumerate}
+    \item \textbf{End-to-End Fine-tuning}: Currently, the LLM functions as a frozen inference engine. We aim to explore parameter-efficient fine-tuning (e.g., LoRA) to align the LLM's reasoning more closely with domain-specific collaborative signals.
+    
+    \item \textbf{Multimodal Expansion}: Incorporating visual signals (product images) into the expert pool to address cases where text descriptions are ambiguous.
+    
+    \item \textbf{Reinforcement Learning for Routing}: Replacing the supervised router with a Reinforcement Learning agent to optimize for long-term user satisfaction and diversity beyond immediate click-through rates.
+\end{enumerate}

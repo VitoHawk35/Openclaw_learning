@@ -1,0 +1,30 @@
+\section{Related Work}
+\label{sec:related_work}
+
+In this section, we review the literature relevant to our work, categorizing it into three streams: Graph-based Collaborative Filtering, Large Language Models for Recommendation, and Mixture-of-Experts mechanisms.
+
+\subsection{Graph-based Collaborative Filtering}
+Graph Neural Networks (GNNs) have advanced the modeling of high-order user-item connectivity. Early methods like NCF and BPR-MF \cite{rendle2009bpr} focused on matrix factorization with pairwise ranking loss. NGCF \cite{wang2019neural} later explicitly modeled collaborative signals via message passing. LightGCN \cite{he2020lightgcn} simplified the architecture by removing non-linear activations, establishing a robust baseline. To address data sparsity, recent works like SimGCL \cite{yu2022simples} integrated contrastive learning.
+
+\textbf{Limitations}: Despite their success, these ID-based models suffer from ``Semantic Blindness.'' They rely solely on interaction topology. Even advanced sequence models like BERT4Rec \cite{sun2019bert4rec}, which applies bidirectional Transformers to interaction sequences, still operate primarily within the ID space. In contrast, our framework employs StructCLR, an enhanced graph encoder with explicit hard negative mining, as just one expert in a broader multi-view ecosystem, ensuring structural signals are complemented by semantic reasoning.
+
+\subsection{Large Language Models in Recommendation}
+The emergence of LLMs has sparked a paradigm shift from ID-based to Content-based reasoning. Existing approaches generally fall into two categories:
+
+\begin{itemize}
+    \item \textbf{Tuning-based Methods:} These methods fine-tune open-source LLMs on interaction data to align them with recommendation tasks. TALLRec \cite{bao2023tallrec} proposes an efficient tuning framework to align LLMs with recommendation instructions using LoRA. CoLLM \cite{zhang2023collm} attempts to bridge the gap by distilling knowledge from a collaborative embedding model into a frozen LLM via a mapping network. PALR \cite{yang2023palr} further introduces cross-attention mechanisms to enhance user-item interaction modeling. While effective, these methods incur high training costs and face the risk of ``Catastrophic Forgetting'' of general world knowledge.
+    
+    \item \textbf{Inference-based \& Agent Methods:} These methods utilize LLMs as zero-shot rankers or autonomous agents. GPT4Rec \cite{xu2024gpt4rec} leverages graph prompting to enable generative recommendation with pre-trained knowledge. More recently, agent-based models like RecMind \cite{wang2024recmind} simulate user-agent interactions to explore hypothetical preferences in open-ended conversations.
+\end{itemize}
+
+\textbf{Limitations}: A critical, often overlooked issue in these generative methods is the ``Sycophancy'' or hallucination problem, where LLMs generate plausible justifications for irrelevant items due to a lack of population-level collaborative priors. ASC-Rec differs by treating the LLM not as a direct ranker or a conversational agent, but as a Semantic Compressor. We introduce a Conditional RRF strategy to explicitly mitigate LLM hallucinations via soft demotion, leveraging the strengths of GPT4Rec-style reasoning while anchoring it with structural stability.
+
+\subsection{Mixture of Experts (MoE) and Adaptive Retrieval}
+To handle diverse user intents, Multi-Interest Learning and MoE architectures have gained attention.
+
+\begin{itemize}
+    \item \textbf{Multi-Interest Learning:} Models like MIND \cite{li2019mind} and ComiRec \cite{cen2020comirec} generate multiple vectors per user to capture polysemous interests.
+    \item \textbf{MoE Architectures:} In multi-task learning, MMoE \cite{ma2018modeling} and PLE \cite{tang2020progressive} use gating networks to distribute input signals to specific experts.
+\end{itemize}
+
+\textbf{Limitations}: Most existing MoE recommenders operate within a homogeneous data view. Our Attention Router bridges this gap by learning ``Expert Prototypes'' in the latent space, enabling adaptive switching between structural collaborative filtering, statistical co-occurrence (e.g., EASE), and semantic search based on the user's real-time state.

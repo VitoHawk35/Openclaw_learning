@@ -1,0 +1,96 @@
+\documentclass[10pt, a4paper]{article}
+
+% ==================== Package Imports ====================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{lipsum}
+\usepackage{url}
+\usepackage{enumitem}
+
+% ==================== Page Layout ====================
+\geometry{
+    a4paper,
+    left=25mm,
+    right=25mm,
+    top=25mm,
+    bottom=25mm
+}
+
+% ==================== Hyperref Setup ====================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={From Expansion to Compression: Adaptive Multi-View Recommendation with LLM-based Semantic Denoising},
+    pdfauthor={Author Name},
+    pdfsubject={Recommendation Systems},
+    pdfkeywords={Recommendation, LLM, Graph Neural Networks, Multi-View Learning}
+}
+
+% ==================== Theorem Environments ====================
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
+% ==================== Custom Commands ====================
+\newcommand{\RRF}{\textsc{RRF}}
+\newcommand{\ASCRec}{\textsc{ASC-Rec}}
+\newcommand{\StructCLR}{\textsc{StructCLR}}
+\newcommand{\SASRec}{\textsc{SASRec}}
+\newcommand{\EASE}{\textsc{EASE}}
+\newcommand{\BMtwoFive}{\textsc{BM25}}
+\newcommand{\UserKNN}{\textsc{UserKNN}}
+\newcommand{\CoRAL}{\textsc{CoRAL}}
+\newcommand{\ICL}{\textsc{ICL}}
+\newcommand{\ReACT}{\textsc{ReAct}}
+
+% ==================== Document Start ====================
+\begin{document}
+
+% ==================== Title Section ====================
+\title{From Expansion to Compression: Adaptive Multi-View Recommendation with LLM-based Semantic Denoising}
+\author{Anonymous Author}
+\date{}
+
+\maketitle
+
+% ==================== Abstract ====================
+\begin{abstract}
+Graph-based Collaborative Filtering (CF) and Large Language Models (LLMs) represent two distinct paradigms in recommendation, yet they suffer from complementary limitations: CF models are semantically blind to content-driven user intents, while LLMs lack population-level collaborative priors and are prone to hallucinations (e.g., sycophancy). Naively integrating them often leads to negative transfer, where semantic noise dilutes structural precision. To resolve this dilemma, we propose \ASCRec{} (Adaptive Structural-Semantic Cascade), a novel framework operating on an ``Expansion-Compression'' paradigm.
+
+In the Expansion phase, we construct a heterogeneous expert pool spanning structural, statistical, and semantic views. An Attention-based Dynamic Router acts as an adaptive gatekeeper, capturing diverse user states (e.g., cold-start vs. active) to retrieve a broad, high-quality candidate reservoir. In the Compression phase, we treat the LLM not as a direct ranker, but as a Semantic Denoiser. We introduce a Conditional Reciprocal Rank Fusion (Conditional RRF) strategy that leverages LLM-generated reasoning to validate candidates. Crucially, this mechanism applies ``soft demotion'' to items flagged as irrelevant, suppressing noise without discarding valid structural signals. Extensive experiments on three real-world datasets (Amazon Beauty, Sports, and Toys) demonstrate that \ASCRec{} significantly outperforms state-of-the-art baselines. Notably, analysis of information density reveals that our approach successfully shifts the ``Golden Ratio'' of relevant items from the tail to the head of the ranking list, maximizing recommendation utility within limited exposure slots.
+\end{abstract}
+
+% ==================== Keywords ====================
+\noindent\textbf{Keywords:} Recommendation Systems, Large Language Models, Graph Neural Networks, Multi-View Learning, Semantic Denoising
+
+% ==================== Table of Contents ====================
+\tableofcontents
+\newpage
+
+% ==================== Main Content ====================
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_methodology}
+\input{sections/04_experiments}
+\input{sections/05_conclusion}
+
+% ==================== Bibliography ====================
+% \bibliographystyle{plain}
+% \bibliography{references}
+
+\end{document}

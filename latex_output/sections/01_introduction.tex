@@ -1,0 +1,30 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Consumer decision-making is rarely driven by a singular factor. It is, in essence, a complex cognitive symphony orchestrated by a multitude of entangled dimensions: the ripple effect of social trends (``What are my peers buying?''), the continuity of temporal habits (``What fits my current lifestyle?''), and the intrinsic attraction to item semantics (``Does this product's feature match my specific need?''). Even for a cold-start user with limited interactions, every click is a holographic projection of these underlying dimensions. Therefore, a robust recommender system must act as a \textbf{polymath}, capable of analyzing user intent from every possible angle to piece together a complete user portrait.
+
+However, prevalent recommendation paradigms often suffer from ``\textbf{Tunnel Vision}''. Traditional Collaborative Filtering (CF) methods, predominantly fixate on a single dimension---\textbf{structural co-occurrence}---reducing rich human behaviors into abstract ID connections. While efficient, this approach inevitably fails when the structural signal is sparse or when the user's motivation is content-driven (e.g., searching for a specific function) rather than socially driven. Relying on such a ``Flat Projection'' of a multi-dimensional world naturally leads to blind spots, resulting in suboptimal recommendations, especially for long-tail items and cold-start users.
+
+To dismantle this barrier, we advocate for a paradigm shift from ``Single-View Modeling'' to ``\textbf{Multi-Perspective Perception}''. We propose \textbf{ASC-Rec} (Adaptive Structural-Semantic Cascade), a framework designed to mimic the multi-dimensional nature of human decision-making. Our approach is built upon two core philosophies:
+
+\textbf{1. Expansion via Omni-Directional Experts:}
+
+Just as a human decision is weighed against multiple factors, we construct a Multi-View Expert Pool comprising six specialized agents, each probing a distinct dimension of user intent:
+\begin{itemize}
+    \item The Structural \& Sequence Experts (StructCLR, SASRec): Capture implicit habits and temporal dynamics.
+    \item The Statistical Experts (EASE, Tribe): Uncover global correlations and group-level trends (the ``Wisdom of the Crowd'').
+    \item The Semantic Experts (BM25, UserKNN): Decode explicit content matching and semantic taste similarities.
+\end{itemize}
+
+By employing an \textbf{Attention-based Dynamic Router}, our system adaptively shifts its focus among these dimensions---much like how a human might prioritize ``brand'' over ``popularity'' in different contexts---thereby maximizing the breadth of the candidate reservoir.
+
+\textbf{2. Compression via Cognitive Reasoning:}
+
+While expanding perspectives increases recall, it also introduces noise---recommendations that are statistically correlated but logically flawed (e.g., recommending a phone case for a phone the user didn't buy). To resolve this, we introduce a \textbf{Semantic Compression} stage. We leverage the reasoning power of Large Language Models (LLMs) not merely as a ranker, but as a ``Cognitive Filter''. Through a novel Conditional Reciprocal Rank Fusion (Conditional RRF) mechanism, the LLM scrutinizes the candidates, identifying and suppressing logically irrelevant items (``No clear association''). This effectively \textbf{compresses} the information entropy, distilling the chaotic Top-50 candidates into a high-density, high-precision Top-K list.
+
+In summary, this work makes the following contributions:
+\begin{itemize}
+    \item \textbf{Perspective:} We reframe recommendation as a multi-dimensional perception task, proposing a MoE architecture that integrates Structure, Statistics, and Semantics.
+    \item \textbf{Methodology:} We develop the ASC-Rec framework, featuring an Adaptive Router for expansion and an LLM-driven Conditional RRF for semantic compression.
+    \item \textbf{Empirical Results:} Extensive experiments on Amazon Beauty, Sports, and Toys datasets demonstrate that ASC-Rec achieves a new state-of-the-art, effectively shifting the ``Golden Ratio'' of relevant items from the tail to the head of the ranking list.
+\end{itemize}
